@@ -91,8 +91,3 @@ def forgot_password_simulation(email_or_username, is_admin=False):
     if is_admin:
         st.sidebar.success(f" Yönetici Şifresi sıfırlama maili '{email_or_username}' adresine gönderildi.")
     else:
-        st.sidebar.success(f" Kullanıcı şifresi sıfırlama maili '{email_or_username}' adresine gönderildi.")
-
-
-# Yönetici Modunda Tema Rengi Uygulama
-if st.session_state['admin_mode
