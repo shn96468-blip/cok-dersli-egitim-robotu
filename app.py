@@ -1,5 +1,5 @@
 import streamlit as st
-import google 
+# Google'ı kaldırıyoruz, çünkü hata veriyor.
 from turkish_content import konuyu_bul_tr, soru_cozumu_yap_tr
 from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
 from math_content import konuyu_bul_math, soru_cozumu_yap_math 
@@ -12,7 +12,8 @@ if 'admin_mode' not in st.session_state:
 if 'show_admin_login' not in st.session_state:
     st.session_state['show_admin_login'] = False
 if 'app_color' not in st.session_state:
-    st.session_state['app_color'] = '#1E90FF' 
+    st.session_state['app_color'] = '#1E90FF' # Varsayılan Mavi
+
     
 def attempt_admin_login(password):
     if password == ADMIN_PASSWORD:
@@ -44,25 +45,28 @@ st.title("📚 Çok Dersli Eğitim Robotu")
 if st.session_state['admin_mode']:
     st.header(f"⚙️ YÖNETİCİ PANELİ (Aktif)")
     
+    # 1. Site Görünümü Ayarları (YÖNETİCİ ÖZELLİĞİ)
     st.subheader("🎨 Site Görünümü ve Temel Ayarlar")
+    
     yeni_renk = st.color_picker('Uygulama Rengini Seçin', st.session_state['app_color'])
     if yeni_renk != st.session_state['app_color']:
         st.session_state['app_color'] = yeni_renk
-        st.rerun() 
+        st.experimental_rerun() # Tema değişikliği için daha güçlü bir yenileme kullanıldı
         
-    st.markdown(f'<style>body {{ background-color: {st.session_state["app_color"]}; }}</style>', unsafe_allow_html=True)
+    st.markdown(f'<style>body {{ color: {st.session_state["app_color"]}; }}</style>', unsafe_allow_html=True)
     st.info(f"Uygulama Başlık Rengi: {st.session_state['app_color']}")
     
     st.markdown("---")
     
+    # 2. İçerik Yönetimi Simülasyonu (YÖNETİCİ ÖZELLİĞİ)
     st.subheader("✍️ İçerik Güncelleme (Simülasyon)")
     st.caption("Bu özellik sadece görsel bir simülasyondur, konuları gerçekten dosyaya kaydetmez.")
     
-    secilen_ders_admin = st.selectbox("İçerik Eklenecek Ders:", ("Türkçe", "İngilizce", "Matematik"))
-    konu_basligi = st.text_input("Yeni Konu Başlığı:")
-    konu_detay = st.text_area("Konu Açıklaması (Detaylı):")
+    secilen_ders_admin = st.selectbox("İçerik Eklenecek Ders:", ("Türkçe", "İngilizce", "Matematik"), key="admin_select_ders")
+    konu_basligi = st.text_input("Yeni Konu Başlığı:", key="admin_input_baslik")
+    konu_detay = st.text_area("Konu Açıklaması (Detaylı):", key="admin_input_detay")
     
-    if st.button("İçeriği Ekle"):
+    if st.button("İçeriği Ekle", key="admin_button_ekle"):
         if konu_basligi and konu_detay:
             st.success(f"'{secilen_ders_admin}' dersine '{konu_basligi}' başlıklı **{len(konu_detay.split())} kelimelik** yeni içerik başarıyla EKLEME SİMÜLASYONU yapıldı!")
         else:
@@ -115,12 +119,12 @@ if not st.session_state['admin_mode']:
     
     islem_modu = st.radio(
         "Şimdi yapmak istediğiniz işlemi seçin:",
-        ("Konu Anlatımı", "Soru Çözümü", "Kelime Çevirisi"),
+        ("Konu Anlatımı", "Soru Çözümü", "Kelime Bilgisi"), # "Kelime Çevirisi" modu, "Kelime Bilgisi" olarak değiştirildi.
         horizontal=True
     )
     
 
-    konu_adi = st.text_input(f"Aradığınız Konu Adını, Kelimeyi veya Çevrilecek Metni Giriniz:")
+    konu_adi = st.text_input(f"Aradığınız Konu Adını veya Kelimeyi Giriniz:")
 
     if st.button("Başlat"):
         if konu_adi:
@@ -130,33 +134,15 @@ if not st.session_state['admin_mode']:
             
             
             # --- ANA MANTIK ---
-            if islem_modu == "Kelime Çevirisi":
-                
-                # ÇEVİRİ İŞLEMİ İÇİN YENİ VE DÜZELTİLMİŞ GOOGLE ARAMA KULLANILIR
+            if islem_modu == "Kelime Bilgisi":
+                # Kelime Bilgisi modunda, Türkçe için İngilizce içerik, İngilizce için Türkçe içerik gösterilir (Çeviri Simülasyonu)
                 if secilen_ders == "Türkçe":
-                    # Türkçe seçiliyse, Türkçe bir kelime yazılmış ve İngilizce çevirisi aranıyor demektir.
-                    query = f"'{konu_adi_lower}' kelimesinin İngilizce çevirisi"
+                    konu_icerigi = konuyu_bul_eng(konu_adi_lower) 
                 elif secilen_ders == "İngilizce":
-                    # İngilizce seçiliyse, İngilizce bir kelime yazılmış ve Türkçe çevirisi aranıyor demektir.
-                    query = f"'{konu_adi_lower}' kelimesinin Türkçe çevirisi"
+                    konu_icerigi = konuyu_bul_tr(konu_adi_lower)
                 else: 
-                    konu_icerigi = "Matematik dersinde çeviri modu desteklenmemektedir."
-                    query = None
-                
-                if query:
-                    st.info(f"'{konu_adi_lower}' kelimesi için Google'da arama yapılıyor...")
-                    try:
-                        # Google Search API çağrısı
-                        result = google.search(queries=[query])
-                        
-                        if result and result[0].snippet:
-                            # İlk sonucu çeviri olarak göster
-                            konu_icerigi = f"🌐 **Google Çeviri Sonucu:**\n\n> *{result[0].snippet}*"
-                        else:
-                            konu_icerigi = "Çeviri için Google'dan sonuç alınamadı."
-                    except Exception as e:
-                        konu_icerigi = f"Çeviri hatası oluştu: {e}"
-
+                    konu_icerigi = "Matematik dersinde Kelime Bilgisi modu desteklenmemektedir."
+            
             
             # --- KONU ANLATIMI VE SORU ÇÖZÜMÜ MANTIKLARI ---
             else:
@@ -181,8 +167,8 @@ if not st.session_state['admin_mode']:
             
             # Sonucu Ekrana Yazdırma
             if "Üzgünüm" not in konu_icerigi and "desteklenmemektedir" not in konu_icerigi:
-                if islem_modu == "Kelime Çevirisi":
-                    st.success(f"İşte '{konu_adi.upper()}' için ÇEVİRİ:")
+                if islem_modu == "Kelime Bilgisi":
+                    st.success(f"İşte '{konu_adi.upper()}' için KELİME BİLGİSİ:")
                 else:
                     st.success(f"İşte '{konu_adi.upper()}' için cevap/açıklama:")
                 st.markdown(konu_icerigi)
@@ -190,4 +176,4 @@ if not st.session_state['admin_mode']:
                 st.warning(konu_icerigi)
 
         else:
-            st.error("Lütfen bir konu adı, kelime veya çevrilecek metin giriniz.")
+            st.error("Lütfen bir konu adı veya kelime giriniz.")
