@@ -158,7 +158,7 @@ def sohbet_ve_cevir(kullanici_mesaji):
             
     # 3. Genel Cevaplar (Eğitim)
     else:
-        # Hata veren satır düzeltildi: f-string ve süslü parantez kapatıldı.
+        # Düzeltilen Satır (V3.2)
         cevap = f"Anladım, '{kullanici_mesaji}' hakkında bilgi istiyorsunuz. Lütfen yukarıdaki menüden dersinizi ve işlem modunu seçerek detaylı bilgi almayı deneyin."
         
     st.session_state.chat_history.append({"user": kullanici_mesaji, "robot": cevap})
@@ -246,96 +246,4 @@ if st.session_state['admin_mode']:
     st.markdown("---")
 
     # 5. Kullanıcı Hesapları Yönetimi Simülasyonu
-    st.subheader("👥 Kullanıcı Hesapları Yönetimi (Simülasyon)")
-    
-    st.info("Bu tabloda simüle edilmiş kullanıcıların listesi gösterilmektedir.")
-    
-    st.table([
-        {"Kullanıcı Adı": u["username"], "E-posta": u["email"], "Son Giriş": f"2025/11/0{i+1}"}
-        for i, u in enumerate(MOCK_USERS)
-    ])
-    
-    st.caption("Yeni Kullanıcı Kaydı (Simülasyon)")
-    with st.expander("Yeni Kullanıcı Ekle"):
-        new_user = st.text_input("Yeni Kullanıcı Adı Demo")
-        new_email = st.text_input("Yeni E-posta Demo")
-        new_pass = st.text_input("Şifre Demo", type="password")
-        if st.button("Kullanıcıyı Kaydet (Simülasyon)"):
-            if new_user and new_email and new_pass:
-                st.success(f"Kullanıcı '{new_user}' simüle edilmiş listeye eklendi!")
-                st.rerun() 
-
-    st.markdown("---")
-    
-    # 6. Geri Bildirim Yönetimi Simülasyonu
-    st.subheader("💬 Geri Bildirim Yönetimi (Simülasyon)")
-    if st.button("Yeni Geri Bildirimleri Kontrol Et"):
-        st.markdown("### Son Geri Bildirimler:")
-        st.markdown(f"**🟢 2025/11/09 (Türkçe Dersinden):** 'Çözüldü' olarak işaretlendi. *Kelime Bilgisi modunda Türkçe kelime aradım, cevap İngilizce geldi.*")
-        st.markdown(f"**🟡 2025/11/10 (Matematik Dersinden):** 'Beklemede'. *Türev konusunda daha fazla örnek istiyorum.*")
-        st.markdown(f"**🔴 2025/11/10 (Genel Uygulama):** 'Yeni Hata'. *Uygulama açılırken kırmızı hata alıyorum.* (Çözüm: Dosyaları kontrol edin!)")
-
-
-else:
-    # Öğrenci Modu Karşılama
-    st.markdown("---")
-    # DUYURU ALANI
-    if st.session_state['announcement_color'] == 'warning':
-        st.warning(f"📣 DUYURU: {st.session_state['announcement']}")
-    elif st.session_state['announcement_color'] == 'info':
-        st.info(f"📣 DUYURU: {st.session_state['announcement']}")
-    elif st.session_state['announcement_color'] == 'success':
-        st.success(f"📣 DUYURU: {st.session_state['announcement']}")
-    elif st.session_state['announcement_color'] == 'error':
-        st.error(f"📣 DUYURU: {st.session_state['announcement']}")
-
-    st.subheader(f"✨ Merhaba! Ben sizin kişisel eğitim robotunuz.")
-    st.markdown("Aşağıdan dersinizi ve yapmak istediğiniz işlemi seçerek hemen bilgi almaya başlayın.")
-    st.markdown("---")
-
-
-# --- YÖNETİCİ/ÜYE GİRİŞİ (SIDEBAR) ---
-st.sidebar.title("Kullanıcı İşlemleri")
-
-# Yönetici Girişi
-if st.session_state['admin_mode']:
-    st.sidebar.button("🔒 YÖNETİCİ ÇIKIŞI", on_click=admin_logout)
-else:
-    st.sidebar.button("🔒 Yönetici Girişi", on_click=toggle_admin_login_panel)
-    
-    # YÖNETİCİ GİRİŞ FORMU
-    if st.session_state['show_admin_login']:
-        with st.sidebar.form("admin_login_form"):
-            admin_pass = st.text_input("Yönetici Şifresi", type="password", key="admin_pass_input")
-            col1, col2 = st.columns(2)
-            with col1:
-                st.form_submit_button("Giriş Yap", on_click=attempt_admin_login, args=(admin_pass,))
-            with col2:
-                if st.form_submit_button("Şifremi Unuttum"):
-                    forgot_password_simulation("Yönetici Mail Adresi", is_admin=True)
-
-# Üye Girişi ve Kayıt Simülasyonu
-if st.session_state['user_logged_in']:
-    st.sidebar.success(f"Giriş Yapıldı: {st.session_state['current_user'].upper()}")
-    st.sidebar.button("🚪 Üye Çıkışı", on_click=user_logout) 
-else:
-    # ÜYE GİRİŞİ BUTONU VE FORMU
-    st.sidebar.button("👤 Üye Girişi", on_click=toggle_user_login_panel)
-    if st.session_state['show_user_login']:
-        with st.sidebar.form("user_login_form"):
-            user_name = st.text_input("Kullanıcı Adı")
-            user_pass = st.text_input("Şifre", type="password")
-            col1, col2 = st.columns(2)
-            with col1:
-                st.form_submit_button("Giriş Yap", on_click=user_login, args=(user_name, user_pass))
-            with col2:
-                if st.form_submit_button("Şifremi Unuttum"):
-                     forgot_password_simulation(user_name or "Bilinmiyor", is_admin=False)
-        st.sidebar.caption("Demo Hesaplar: ali/a123, ayse/a456")
-
-    # ÜYE KAYIT BUTONU VE FORMU
-    if st.session_state['registration_allowed']:
-        st.sidebar.button("📝 Kaydol", on_click=toggle_user_register_panel)
-        if st.session_state['show_user_register']:
-            with st.sidebar.form("user_register_form"):
-                reg_user = st.text_input("Kullanıcı Adı (Kaydol)")
+    st.
