@@ -1,4 +1,5 @@
 import streamlit as st
+# Not: turkish_content, english_content, math_content dosyalarınızın uygulamanın çalıştığı dizinde olması gerekmektedir.
 from turkish_content import konuyu_bul_tr, soru_cozumu_yap_tr
 from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
 from math_content import konuyu_bul_math, soru_cozumu_yap_math 
@@ -36,13 +37,13 @@ if 'app_color' not in st.session_state:
     st.session_state['app_color'] = '#1E90FF' 
 if 'announcement' not in st.session_state:
     st.session_state['announcement'] = "🤖 Eğitim robotu aktif! Yeni konuları keşfetmeye başlayın."
-if 'announcement_color' not in st.session_state:
+if 'announcement_color' not in st.session_state: 
     st.session_state['announcement_color'] = 'warning' 
-if 'registration_allowed' not in st.session_state:
+if 'registration_allowed' not in st.session_state: 
     st.session_state['registration_allowed'] = True 
-if 'user_login_allowed' not in st.session_state:
+if 'user_login_allowed' not in st.session_state: 
     st.session_state['user_login_allowed'] = True 
-if 'chat_history' not in st.session_state: # Yeni Özellik: Sohbet geçmişi
+if 'chat_history' not in st.session_state: 
     st.session_state['chat_history'] = []
     
 # --- GİRİŞ/ÇIKIŞ FONKSİYONLARI ---
@@ -202,28 +203,4 @@ if st.session_state['admin_mode']:
     st.markdown("---")
     
     # 2. Üye Girişi / Kaydı Kontrolü
-    st.subheader("🔒 Kullanıcı Erişim Kontrolü")
-    col_login, col_reg = st.columns(2)
-    with col_login:
-        yeni_login_izin = st.checkbox("Üye Girişine İzin Ver", st.session_state['user_login_allowed'])
-        if yeni_login_izin != st.session_state['user_login_allowed']:
-            st.session_state['user_login_allowed'] = yeni_login_izin
-            st.rerun()
-            
-    with col_reg:
-        yeni_reg_izin = st.checkbox("Yeni Kayda İzin Ver", st.session_state['registration_allowed'])
-        if yeni_reg_izin != st.session_state['registration_allowed']:
-            st.session_state['registration_allowed'] = yeni_reg_izin
-            st.rerun()
-            
-    st.caption("Bakım veya yoğunluk durumunda girişleri kapatabilirsiniz.")
-    st.markdown("---")
-
-    # 3. İçerik Güncelleme Simülasyonu
-    st.subheader("✍️ İçerik Güncelleme (Simülasyon)")
-    secilen_ders_admin = st.selectbox("İçerik Eklenecek Ders:", ("Türkçe", "İngilizce", "Matematik"), key="admin_select_ders")
-    konu_basligi = st.text_input("Yeni Konu Başlığı:", key="admin_input_baslik")
-    konu_detay = st.text_area("Konu Açıklaması (Detaylı):", key="admin_input_detay")
-    if st.button("İçeriği Ekle", key="admin_button_ekle"):
-        if konu_basligi and konu_detay:
-            st.success(f"'{secilen_ders_admin}' dersine '{konu_basligi}' başlıklı yeni içerik başarı
+    st.subheader("🔒 Kullanıcı Erişim Kontrolü
