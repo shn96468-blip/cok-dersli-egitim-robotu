@@ -1,40 +1,27 @@
-# SADECE ÖĞRENCİ MODUNDA İSE GÖSTER
-if not st.session_state['admin_mode']:
+# app.py dosyasında, Line 37 civarındaki Oturum Durumu Başlangıç Değerleri bölümü:
 
-    # --- MOD VE DERS SEÇİMİ (KARTLAR ŞEKLİNDE) ---
-    st.header("📚 Ders Seçimi")
-
-    # Kartları Streamlit sütunları ile oluşturma
-    col_tr, col_eng, col_mat, col_sohbet = st.columns(4)
-
-    # DERSLERİN TANIMLARI
-    DERSLER = [
-        {"isim": "Türkçe", "simgesi": "🇹🇷", "kolon": col_tr},
-        {"isim": "İngilizce", "simgesi": "🇬🇧", "kolon": col_eng},
-        {"isim": "Matematik", "simgesi": "📐", "kolon": col_mat},
-        {"isim": "Sohbet ve Çeviri", "simgesi": "💬", "kolon": col_sohbet},
-    ]
-
-    # Seçim mekanizması için bir session state değişkeni
-    if 'secilen_ders' not in st.session_state:
-        st.session_state['secilen_ders'] = None
-
-    # Kartları çizme döngüsü
-    for ders in DERSLER:
-        with ders["kolon"]:
-            if st.button(f"{ders['simgesi']} {ders['isim']}", key=f"btn_{ders['isim']}", use_container_width=True):
-                st.session_state['secilen_ders'] = ders['isim']
-                st.rerun() 
-
-    st.markdown("---")
-    
-    secilen_ders = st.session_state['secilen_ders'] # Artık seçili ders buradan geliyor
-
-    if secilen_ders:
-        st.subheader(f"✅ Seçili Ders: {secilen_ders}")
-        
-        # --- Sohbet modu seçilirse farklı bir arayüz göster ---
-        if secilen_ders == "Sohbet ve Çeviri":
-            # Sohbet kodu buraya devam edecek
-            # ...
-            # ...
+# OTURUM DURUMU BAŞLANGIÇ DEĞERLERİ (Hata almamak için kodun en başında tanımlanmıştır)
+if 'admin_mode' not in st.session_state:
+    st.session_state['admin_mode'] = False
+if 'user_logged_in' not in st.session_state:
+    st.session_state['user_logged_in'] = False
+if 'current_user' not in st.session_state:
+    st.session_state['current_user'] = None
+if 'show_admin_login' not in st.session_state:
+    st.session_state['show_admin_login'] = False
+if 'show_user_login' not in st.session_state:
+    st.session_state['show_user_login'] = False
+if 'show_user_register' not in st.session_state:
+    st.session_state['show_user_register'] = False
+if 'app_color' not in st.session_state:
+    st.session_state['app_color'] = '#1E90FF' 
+if 'announcement' not in st.session_state:
+    st.session_state['announcement'] = "🤖 Eğitim robotu aktif! Yeni konuları keşfetmeye başlayın."
+if 'announcement_color' not in st.session_state: 
+    st.session_state['announcement_color'] = 'warning' 
+if 'registration_allowed' not in st.session_state: 
+    st.session_state['registration_allowed'] = True 
+if 'user_login_allowed' not in st.session_state: 
+    st.session_state['user_login_allowed'] = True 
+if 'chat_history' not in st.session_state: 
+    st.session_state['chat_history'] = []
