@@ -1,6 +1,42 @@
-# app.py dosyasında, Line 37 civarındaki Oturum Durumu Başlangıç Değerleri bölümü:
+import streamlit as st
+import time
 
-# OTURUM DURUMU BAŞLANGIÇ DEĞERLERİ (Hata almamak için kodun en başında tanımlanmıştır)
+# --- MODÜL VE KÜTÜPHANE İÇE AKTARMA ---
+# Hata olasılığına karşı, modül içe aktarmaları try-except bloğuna alınmıştır.
+try:
+    # Bu dosyaların (turkish_content.py, english_content.py, math_content.py) app.py ile aynı dizinde olduğundan emin olun.
+    from turkish_content import konuyu_bul_tr, soru_cozumu_yap_tr
+    from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
+    from math_content import konuyu_bul_math, soru_cozumu_yap_math 
+except ImportError as e:
+    # Bu hata, içerik dosyalarının henüz boş veya eksik olmasından kaynaklanır. Uygulamanın çalışmasını engellemez.
+    st.warning(f"Eğitim İçerik Dosyası Uyarısı: '{e.name}' dosyası bulunamadı veya içe aktarılamadı. İçerik alınamayacak. Lütfen dosyaları doldurun.")
+    
+    # Hata durumunda fonksiyonların boş tanımları
+    def konuyu_bul_tr(konu): return f"İçerik modülü yüklenemediği için Türkçe '{konu}' konusu bulunamıyor."
+    def soru_cozumu_yap_tr(soru): return f"İçerik modülü yüklenemediği için Türkçe '{konu}' sorusu çözülemiyor."
+    def konuyu_bul_eng(konu): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' konusu bulunamıyor."
+    def soru_cozumu_yap_eng(soru): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' sorusu çözülemiyor."
+    def konuyu_bul_math(konu): return f"İçerik modülü yüklenemediği için Matematik '{konu}' konusu bulunamıyor."
+    def soru_cozumu_yap_math(soru): return f"İçerik modülü yüklenemediği için Matematik '{konu}' sorusu çözülemiyor."
+
+
+# --- SAYFA VE SİMGE AYARLARI ---
+st.set_page_config(
+    page_title="Eğitim Robotu | Yusuf Efe Şahin",
+    layout="wide",
+    page_icon="📚" 
+)
+
+# --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA ---
+ADMIN_PASSWORD = "123" 
+# SIMÜLASYON KULLANICILARI (Demo Hesaplar: ali/a123, ayse/a456)
+MOCK_USERS = [
+    {"username": "ali", "email": "ali@okul.com", "password_hash": "a123"},
+    {"username": "ayse", "email": "ayse@okul.com", "password_hash": "a456"},
+]
+
+# OTURUM DURUMU BAŞLANGIÇ DEĞERLERİ (Tüm Hata Düzeltmeleri Yapıldı)
 if 'admin_mode' not in st.session_state:
     st.session_state['admin_mode'] = False
 if 'user_logged_in' not in st.session_state:
@@ -22,6 +58,4 @@ if 'announcement_color' not in st.session_state:
 if 'registration_allowed' not in st.session_state: 
     st.session_state['registration_allowed'] = True 
 if 'user_login_allowed' not in st.session_state: 
-    st.session_state['user_login_allowed'] = True 
-if 'chat_history' not in st.session_state: 
-    st.session_state['chat_history'] = []
+    st.session_state['user_
