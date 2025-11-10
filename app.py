@@ -1,12 +1,11 @@
 import streamlit as st
-# Hata veren satırlar SİLİNDİ. Sadece gerekli içerik dosyaları kaldı.
 from turkish_content import konuyu_bul_tr, soru_cozumu_yap_tr
 from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
 from math_content import konuyu_bul_math, soru_cozumu_yap_math 
 
-# --- SAYFA VE SİMGE AYARLARI (EN ÜSTTE OLMALI) ---
+# --- SAYFA VE SİMGE AYARLARI ---
 st.set_page_config(
-    page_title="Eğitim Robotu",
+    page_title="Eğitim Robotu | Yusuf Efe Şahin",
     layout="wide",
     page_icon="📚" 
 )
@@ -14,19 +13,18 @@ st.set_page_config(
 # --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA ---
 ADMIN_PASSWORD = "123" 
 
-# Tüm session state değişkenleri burada başlatıldı (NameError çözüldü)
 if 'admin_mode' not in st.session_state:
     st.session_state['admin_mode'] = False
 if 'show_admin_login' not in st.session_state:
     st.session_state['show_admin_login'] = False
 if 'app_color' not in st.session_state:
-    st.session_state['app_color'] = '#1E90FF' 
+    st.session_state['app_color'] = '#1E90FF' # Varsayılan Canlı Mavi
     
 def attempt_admin_login(password):
     if password == ADMIN_PASSWORD:
         st.session_state['admin_mode'] = True
         st.session_state['show_admin_login'] = False
-        st.rerun() # Hata vermeyen yenileme komutu kullanıldı
+        st.rerun() 
     else:
         st.error("Hatalı yönetici şifresi.")
 
@@ -35,12 +33,16 @@ def toggle_admin_login_panel():
     
 def admin_logout():
     st.session_state['admin_mode'] = False
-    st.rerun() # Hata vermeyen yenileme komutu kullanıldı
+    st.rerun() 
 
 
-# Yönetici Modunda Tema Rengi Uygulama
+# Yönetici Modunda Tema Rengi Uygulama (Başlıklar ve vurgular için)
 if st.session_state['admin_mode']:
-    st.markdown(f'<style>body {{ color: {st.session_state["app_color"]}; }}</style>', unsafe_allow_html=True)
+    # Bu stil sadece yönetici modunda başlıkları renklendirir
+    st.markdown(f'<style>h1, h2, h3, h4, h5, h6 {{color: {st.session_state["app_color"]};}}</style>', unsafe_allow_html=True)
+else:
+    # Kullanıcı modunda varsayılan temayı kullanırız
+    st.markdown(f'<style>h1, h2, h3, h4, h5, h6 {{color: #FFFFFF;}}</style>', unsafe_allow_html=True)
 
 
 # --- ANA ROBOT GÖVDESİ ---
@@ -50,14 +52,16 @@ st.title("📚 Çok Dersli Eğitim Robotu")
 if st.session_state['admin_mode']:
     st.header(f"⚙️ YÖNETİCİ PANELİ (Aktif)")
     
-    # Yönetici Özellikleri
     st.subheader("🎨 Site Görünümü ve Temel Ayarlar")
-    yeni_renk = st.color_picker('Uygulama Rengini Seçin', st.session_state['app_color'])
+    
+    yeni_renk = st.color_picker('Uygulama Vurgu Rengini Seçin', st.session_state['app_color'])
     if yeni_renk != st.session_state['app_color']:
         st.session_state['app_color'] = yeni_renk
+        st.info(f"Vurgu rengi {yeni_renk} olarak ayarlandı. Değişikliğin tam olarak uygulanması için sayfayı yenileyin.")
         st.rerun() 
         
-    st.info(f"Uygulama Başlık Rengi: {st.session_state['app_color']}")
+    st.info(f"Uygulama Vurgu Rengi: {st.session_state['app_color']}")
+    
     st.markdown("---")
     
     st.subheader("✍️ İçerik Güncelleme (Simülasyon)")
@@ -74,11 +78,16 @@ if st.session_state['admin_mode']:
             st.warning("Lütfen başlık ve detay alanlarını doldurun.")
 
 else:
-    st.markdown("Merhaba! Lütfen önce dersinizi seçin.")
+    # Öğrenci Modu Karşılama (Güzelleştirilmiş Giriş)
+    st.markdown("---")
+    st.subheader(f"✨ Merhaba! Ben sizin **{st.session_state['app_color']}** vurgu rengine sahip kişisel eğitim robotunuz.")
+    st.markdown("Aşağıdan dersinizi ve yapmak istediğiniz işlemi seçerek hemen bilgi almaya başlayın.")
+    st.markdown("---")
 
 
 # --- YÖNETİCİ/ÜYE GİRİŞİ (SIDEBAR) ---
 st.sidebar.title("Kullanıcı İşlemleri")
+
 if st.session_state['admin_mode']:
     st.sidebar.button("🔒 YÖNETİCİ ÇIKIŞI", on_click=admin_logout)
 else:
@@ -87,22 +96,22 @@ else:
     if st.session_state['show_admin_login']:
         admin_pass = st.sidebar.text_input("Yönetici Şifresi", type="password", key="admin_pass_input")
         st.sidebar.button("Giriş Yap", on_click=attempt_admin_login, args=(admin_pass,))
-        st.sidebar.info(f"Şifrenizi mi unuttunuz? Şifre ipucu: İlk üç sayı. (Gerçek Şifre: {ADMIN_PASSWORD})")
+        st.sidebar.info(f"Şifre ipucu: İlk üç sayı. (Gerçek Şifre: {ADMIN_PASSWORD})")
 
 
-st.sidebar.button("👤 Üye Girişi (Pasif)", on_click=lambda: st.sidebar.warning("Üye Girişi özelliği geliştirme aşamasındadır."))
+st.sidebar.button("👤 Üye Girişi (Pasif)", on_click=lambda: st.sidebar.warning("Üye Girişi geliştiriliyor."))
 st.sidebar.markdown("---") 
 
-# --- DERS LİSTESİ ---
+# --- DERS LİSTESİ (Yan Panel Temizliği) ---
 st.sidebar.title("Kullanılabilir Dersler")
 st.sidebar.markdown(
     """
-    **🇹🇷 Türkçe (7. Sınıf)**
-    **🇬🇧 İngilizce**
-    **📐 Matematik**
+    * **🇹🇷 Türkçe:** Dil Bilgisi ve Anlam
+    * **🇬🇧 İngilizce:** Tenses ve Kelime Bilgisi
+    * **📐 Matematik:** Cebir ve Analiz (12. Sınıf Kapsamına kadar)
     """
 )
-st.sidebar.caption("Bu Uygulama Yusuf Efe Şahin Tarafından Geliştirilmiştir.")
+st.sidebar.caption("Geliştirici: Yusuf Efe Şahin")
 
 
 # SADECE ÖĞRENCİ MODUNDA İSE GÖSTER
@@ -110,7 +119,7 @@ if not st.session_state['admin_mode']:
 
     # --- MOD VE DERS SEÇİMİ ---
     secilen_ders = st.selectbox(
-        "Lütfen önce ilgili dersi seçin:",
+        "Lütfen ilgili dersi seçin:",
         ("Türkçe", "İngilizce", "Matematik")
     )
     
