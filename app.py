@@ -260,4 +260,247 @@ if st.session_state['admin_mode']:
     st.markdown("---")
 
     # 5. Kullanıcı Hesapları Yönetimi Simülasyonu
-    st.subheader("👥 Kullanıcı Hesapları Yönetimi
+    # 263. satır burasıdır, tırnak işareti hatası burada düzeldi.
+    st.subheader("👥 Kullanıcı Hesapları Yönetimi (Simülasyon)")
+    
+    st.info("Bu tabloda simüle edilmiş kullanıcıların listesi gösterilmektedir.")
+    
+    st.table([
+        {"Kullanıcı Adı": u["username"], "E-posta": u["email"], "Son Giriş": f"2025/11/0{i+1}"}
+        for i, u in enumerate(MOCK_USERS)
+    ])
+    
+    st.caption("Yeni Kullanıcı Kaydı (Simülasyon)")
+    with st.expander("Yeni Kullanıcı Ekle"):
+        new_user = st.text_input("Yeni Kullanıcı Adı Demo")
+        new_email = st.text_input("Yeni E-posta Demo")
+        new_pass = st.text_input("Şifre Demo", type="password")
+        if st.button("Kullanıcıyı Kaydet (Simülasyon)"):
+            if new_user and new_email and new_pass:
+                st.success(f"Kullanıcı '{new_user}' simüle edilmiş listeye eklendi!")
+                st.rerun() 
+
+    st.markdown("---")
+    
+    # 6. Geri Bildirim Yönetimi Simülasyonu
+    st.subheader("💬 Geri Bildirim Yönetimi (Simülasyon)")
+    if st.button("Yeni Geri Bildirimleri Kontrol Et"):
+        st.markdown("### Son Geri Bildirimler:") 
+        st.markdown(f"**🟢 2025/11/09 (Türkçe Dersinden):** 'Çözüldü' olarak işaretlendi. *Kelime Bilgisi modunda Türkçe kelime aradım, cevap İngilizce geldi.*")
+        st.markdown(f"**🟡 2025/11/10 (Matematik Dersinden):** 'Beklemede'. *Türev konusunda daha fazla örnek istiyorum.*")
+        st.markdown(f"**🔴 2025/11/10 (Genel Uygulama):** 'Yeni Hata'. *Uygulama açılırken kırmızı hata alıyorum.* (Çözüm: Dosyaları kontrol edin!)")
+
+
+else:
+    # Öğrenci Modu Karşılama
+    st.markdown("---")
+    # DUYURU ALANI
+    if st.session_state['announcement_color'] == 'warning':
+        st.warning(f"📣 DUYURU: {st.session_state['announcement']}")
+    elif st.session_state['announcement_color'] == 'info':
+        st.info(f"📣 DUYURU: {st.session_state['announcement']}")
+    elif st.session_state['announcement_color'] == 'success':
+        st.success(f"📣 DUYURU: {st.session_state['announcement']}")
+    elif st.session_state['announcement_color'] == 'error':
+        st.error(f"📣 DUYURU: {st.session_state['announcement']}")
+
+    # Renk ayarı admin modunda yapılmazsa buraya bir yedek ekleyelim 
+    app_color_display = st.session_state.get('app_color', '#1E90FF') 
+    st.markdown(f"✨ Merhaba! Ben sizin <span style='color:{app_color_display}'>kişisel eğitim robotunuz</span>.", unsafe_allow_html=True)
+    st.markdown("Aşağıdan dersinizi ve yapmak istediğiniz işlemi seçerek hemen bilgi almaya başlayın.")
+    st.markdown("---")
+
+
+# --- YÖNETİCİ/ÜYE GİRİŞİ (SIDEBAR) ---
+st.sidebar.title("Kullanıcı İşlemleri")
+
+# Yönetici Girişi
+if st.session_state['admin_mode']:
+    st.sidebar.button("🔒 YÖNETİCİ ÇIKIŞI", on_click=admin_logout)
+else:
+    st.sidebar.button("🔒 Yönetici Girişi", on_click=toggle_admin_login_panel)
+    
+    # YÖNETİCİ GİRİŞ FORMU
+    if st.session_state['show_admin_login']:
+        with st.sidebar.form("admin_login_form"):
+            admin_pass = st.text_input("Yönetici Şifresi", type="password", key="admin_pass_input")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.form_submit_button("Giriş Yap", on_click=attempt_admin_login, args=(admin_pass,))
+            with col2:
+                if st.form_submit_button("Şifremi Unuttum"):
+                    forgot_password_simulation("Yönetici Mail Adresi", is_admin=True)
+
+# Üye Girişi ve Kayıt Simülasyonu
+if st.session_state['user_logged_in']:
+    st.sidebar.success(f"Giriş Yapıldı: {st.session_state['current_user'].upper()}")
+    st.sidebar.button("🚪 Üye Çıkışı", on_click=user_logout) 
+else:
+    # ÜYE GİRİŞİ BUTONU VE FORMU
+    st.sidebar.button("👤 Üye Girişi", on_click=toggle_user_login_panel)
+    if st.session_state['show_user_login']:
+        with st.sidebar.form("user_login_form"):
+            user_name = st.text_input("Kullanıcı Adı")
+            user_pass = st.text_input("Şifre", type="password")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.form_submit_button("Giriş Yap", on_click=user_login, args=(user_name, user_pass))
+            with col2:
+                if st.form_submit_button("Şifremi Unuttum"):
+                     forgot_password_simulation(user_name or "Bilinmiyor", is_admin=False)
+        st.sidebar.caption("Demo Hesaplar: ali/a123, ayse/a456")
+
+    # ÜYE KAYIT BUTONU VE FORMU
+    if st.session_state['registration_allowed']:
+        st.sidebar.button("📝 Kaydol", on_click=toggle_user_register_panel)
+        if st.session_state['show_user_register']:
+            with st.sidebar.form("user_register_form"):
+                reg_user = st.text_input("Kullanıcı Adı (Kaydol)")
+                reg_email = st.text_input("E-posta Adresi")
+                # Hata düzeltildi: Tırnak işaretleri ve parametreler eklendi
+                reg_pass = st.text_input("Şifre Belirle", type="password") 
+                if st.form_submit_button("Hesap Oluştur (Simülasyon)"):
+                    st.info(f"Kayıt işlemi başarıyla simüle edildi! Lütfen giriş yapın.")
+                    st.session_state['show_user_register'] = False
+                    st.rerun()
+    else:
+        st.sidebar.error("Yeni kayıtlar şu anda kapalıdır.")
+
+st.sidebar.markdown("---") 
+
+# --- DERS LİSTESİ ---
+st.sidebar.title("Kullanılabilir Dersler")
+st.sidebar.markdown(
+    """
+    * **🇹🇷 Türkçe:** Dil Bilgisi ve Anlam
+    * **🇬🇧 İngilizce:** Tenses ve Kelime Bilgisi
+    * **📐 Matematik:** Cebir ve Analiz (12. Sınıf Kapsamına kadar)
+    * **💬 Sohbet:** Anlık Çeviri ve Etkileşim
+    """
+)
+st.sidebar.caption("Geliştirici: Yusuf Efe Şahin")
+
+
+# SADECE ÖĞRENCİ MODUNDA İSE GÖSTER
+if not st.session_state['admin_mode']:
+
+    # --- MOD VE DERS SEÇİMİ ---
+    secilen_ders = st.selectbox(
+        "Lütfen ilgili dersi seçin:",
+        ("Türkçe", "İngilizce", "Matematik", "Sohbet ve Anlık Çeviri")
+    )
+    
+    # Sohbet modu seçilirse farklı bir arayüz göster
+    if secilen_ders == "Sohbet ve Anlık Çeviri":
+        st.header("💬 Robot ile Sohbet ve Anlık Çeviri")
+        st.info("Bana herhangi bir soru sorabilir ya da çevirmek istediğin bir kelime/cümle yazabilirsin.")
+        
+        # Sohbet Geçmişi Gösterimi
+        for chat in st.session_state.chat_history:
+            with st.chat_message("user"):
+                st.markdown(chat["user"])
+            with st.chat_message("robot"):
+                # Konuşma Özelliği (Metin Okuma)
+                col_yazi_chat, col_ses_chat = st.columns([4, 1])
+                with col_yazi_chat:
+                    st.markdown(chat["robot"])
+                with col_ses_chat:
+                    if st.button("🎤 Seslendir", key=f"seslendir_chat_{id(chat)}"): 
+                        metin_oku(chat["robot"])
+
+        # Kullanıcı Girişi
+        kullanici_mesaji = st.chat_input("Mesajınızı veya çevirmek istediğiniz kelimeyi/cümleyi girin:")
+        
+        if kullanici_mesaji:
+            # Cevap üretme ve geçmişi güncelleme
+            robot_cevap = sohbet_ve_cevir(kullanici_mesaji)
+            
+            # Yeni mesaj gönderildiğinde, sayfanın yeniden yüklenmesini tetikle
+            st.rerun()
+
+        # Geçmişi Temizle butonu
+        if st.session_state.chat_history and st.button("Sohbeti Temizle"):
+             st.session_state.chat_history = []
+             st.rerun()
+
+    # Eğer ders modu seçilirse mevcut yapıyı kullan
+    else:
+        islem_modu = st.radio(
+            "Şimdi yapmak istediğiniz işlemi seçin:",
+            ("Detaylı Konu Anlatımı", "Soru Çözümü", "Kelime Bilgisi"),
+            horizontal=True
+        )
+        
+        konu_adi = st.text_input(f"Aradığınız Konu Adını veya Kelimeyi Giriniz:")
+
+        if st.button("Başlat"):
+            if konu_adi:
+                
+                konu_adi_lower = konu_adi.lower().strip()
+                konu_icerigi = "Üzgünüm, aradığınız konuyu/kelimeyi bulamadım."
+                
+                # --- ANA MANTIK ---
+                if islem_modu == "Kelime Bilgisi":
+                    if secilen_ders == "Türkçe":
+                        # Türkçe Kelime için İngilizce karşılığı
+                        konu_icerigi = konuyu_bul_eng(konu_adi_lower) 
+                    elif secilen_ders == "İngilizce":
+                        # İngilizce Kelime için Türkçe karşılığı
+                        konu_icerigi = konuyu_bul_tr(konu_adi_lower)
+                    else: 
+                        konu_icerigi = "Matematik dersinde Kelime Bilgisi modu desteklenmemektedir."
+                
+                
+                # --- KONU ANLATIMI VE SORU ÇÖZÜMÜ MANTIKLARI ---
+                else:
+                    if secilen_ders == "Türkçe":
+                        if islem_modu == "Soru Çözümü":
+                             konu_icerigi = soru_cozumu_yap_tr(konu_adi_lower)
+                        else: 
+                            konu_icerigi = konuyu_bul_tr(konu_adi_lower)
+                    
+                    elif secilen_ders == "İngilizce":
+                        if islem_modu == "Soru Çözümü":
+                             konu_icerigi = soru_cozumu_yap_eng(konu_adi_lower)
+                        else: 
+                            konu_icerigi = konuyu_bul_eng(konu_adi_lower)
+                    
+                    elif secilen_ders == "Matematik":
+                        if islem_modu == "Soru Çözümü":
+                             konu_icerigi = soru_cozumu_yap_math(konu_adi_lower)
+                        else: 
+                            konu_icerigi = konuyu_bul_math(konu_adi_lower)
+
+                
+                # --- EVRENSEL BİLGİ YEDEĞİ ---
+                if "Üzgünüm" in konu_icerigi or "bulamadım" in konu_icerigi or "İçerik modülü yüklenemediği" in konu_icerigi:
+                     
+                     evrensel_cevap = f"🤖 **ROBOT CEVAP YEDEĞİ:** Aradığınız **'{konu_adi.upper()}'** konusu, tanımlı ders içeriklerimizde bulunamamıştır. Robot, yapay zeka desteğiyle bu konuda genel bilgi verme simülasyonu yapabilir:\n\n"
+                     
+                     st.info("🤖 Robot Diyor ki: Bu bir simülasyon cevabıdır.")
+                     
+                     evrensel_cevap += "Örneğin, 'Dünyanın en derin okyanusu nedir?' diye sorsaydınız, cevabım 'Büyük Okyanus' olurdu. (Genel Bilgi Yedeği)"
+                     
+                     konu_icerigi = evrensel_cevap + "\n\n*Not: Robotun bilgi havuzunu genişletmek için yönetici panelinden yeni içerik eklenmeli veya içerik dosyaları doğru yerleştirilmelidir.*"
+                
+                
+                # Sonucu Ekrana Yazdırma
+                if "desteklenmemektedir" not in konu_icerigi:
+                    if islem_modu == "Kelime Bilgisi":
+                        st.success(f"İşte '{konu_adi.upper()}' için KELİME BİLGİSİ:")
+                    else:
+                        st.success(f"İşte '{konu_adi.upper()}' için cevap/açıklama:")
+                    
+                    # Konuşma Özelliği (Metin Okuma)
+                    col_yazi, col_ses = st.columns([4, 1])
+                    with col_yazi:
+                        st.markdown(konu_icerigi)
+                    with col_ses:
+                        if st.button("🎤 Seslendir", key="seslendir_konu_anlatimi"):
+                            metin_oku(konu_icerigi)
+
+                else:
+                    st.warning(konu_icerigi)
+
+            else:
+                st.error("Lütfen bir konu adı veya kelime giriniz.")
