@@ -13,8 +13,7 @@ def konuyu_bul_eng(arama_terimi):
     if arama_terimi in KONULAR_ENG:
         return f"🇬🇧 ENGLISH TOPIC EXPLANATION:\n{KONULAR_ENG[arama_terimi]}"
     else:
-        # Konu bulunamazsa, kelimeyi çeviri olarak ele alıyoruz.
-        return f"🇬🇧 KELİME ÇEVİRİSİ / EK BİLGİ:\n\nAradığınız '{arama_terimi}' kelimesi, İngilizce sözlüğümüzde tanımlı bir konu değildir. Ancak bu kelime: **'Örnek Çeviri: Bilgisayar'** anlamına gelir ve temel bir isimdir. Lütfen tam bir cümle veya konu başlığı yazarak tekrar deneyin."
+        return f"🇬🇧 KELİME ÇEVİRİSİ / EK BİLGİ:\n\nAradığınız '{arama_terimi}' kelimesi, İngilizce sözlüğümüzde tanımlı bir konu değildir. Ancak bu kelime, genel bir kelime olarak kabul edilmiştir. (Örn: 'Apple' kelimesi Türkçe'de 'Elma' demektir). Lütfen tam bir cümle veya konu başlığı yazarak tekrar deneyin."
 
 def soru_cozumu_yap_eng(arama_termi):
     return "❓ Example Question Solution (English): The solution uses the rules of Tenses and Modals."
