@@ -38,7 +38,7 @@ def admin_logout():
     st.experimental_rerun() # Sayfayı yenileme komutu
 
 
-# Yönetici Modunda Tema Rengi Uygulama (Gerekli)
+# Yönetici Modunda Tema Rengi Uygulama
 if st.session_state['admin_mode']:
     st.markdown(f'<style>body {{ color: {st.session_state["app_color"]}; }}</style>', unsafe_allow_html=True)
 
@@ -72,7 +72,7 @@ if st.session_state['admin_mode']:
     
     if st.button("İçeriği Ekle", key="admin_button_ekle"):
         if konu_basligi and konu_detay:
-            st.success(f"'{secilen_ders_admin}' dersine '{konu_basligi}' başlıklı **{len(konu_detay.split())} kelimelik** yeni içerik başarıyla EKLEME SİMÜLASYONU yapıldı!")
+            st.success(f"'{secilen_ders_admin}' dersine '{konu_basligi}' başlıklı **{len(konu_detay.split())} kelimelik** yeni içerik başarıyla EKLEME SİMULASYONU yapıldı!")
         else:
             st.warning("Lütfen başlık ve detay alanlarını doldurun.")
 
@@ -96,70 +96,4 @@ else:
         st.sidebar.info(f"Şifrenizi mi unuttunuz? Şifre ipucu: İlk üç sayı. (Gerçek Şifre: {ADMIN_PASSWORD})")
 
 
-st.sidebar.button("👤 Üye Girişi (Pasif)", on_click=lambda: st.sidebar.warning("Üye Girişi özelliği geliştirme aşamasındadır."))
-st.sidebar.markdown("---") 
-
-# --- DERS LİSTESİ ---
-st.sidebar.title("Kullanılabilir Dersler")
-st.sidebar.markdown(
-    """
-    **🇹🇷 Türkçe (7. Sınıf)**
-    **🇬🇧 İngilizce**
-    **📐 Matematik**
-    """
-)
-st.sidebar.caption("Bu Uygulama Yusuf Efe Şahin Tarafından Geliştirilmiştir.")
-
-
-# SADECE ÖĞRENCİ MODUNDA İSE GÖSTER
-if not st.session_state['admin_mode']:
-
-    # --- MOD VE DERS SEÇİMİ ---
-    secilen_ders = st.selectbox(
-        "Lütfen önce ilgili dersi seçin:",
-        ("Türkçe", "İngilizce", "Matematik")
-    )
-    
-    islem_modu = st.radio(
-        "Şimdi yapmak istediğiniz işlemi seçin:",
-        ("Konu Anlatımı", "Soru Çözümü", "Kelime Bilgisi"),
-        horizontal=True
-    )
-    
-    konu_adi = st.text_input(f"Aradığınız Konu Adını veya Kelimeyi Giriniz:")
-
-    if st.button("Başlat"):
-        if konu_adi:
-            
-            konu_adi_lower = konu_adi.lower().strip()
-            konu_icerigi = "Üzgünüm, aradığınız konuyu/kelimeyi bulamadım."
-            
-            # --- ANA MANTIK ---
-            if islem_modu == "Kelime Bilgisi":
-                if secilen_ders == "Türkçe":
-                    konu_icerigi = konuyu_bul_eng(konu_adi_lower) 
-                elif secilen_ders == "İngilizce":
-                    konu_icerigi = konuyu_bul_tr(konu_adi_lower)
-                else: 
-                    konu_icerigi = "Matematik dersinde Kelime Bilgisi modu desteklenmemektedir."
-            
-            
-            # --- KONU ANLATIMI VE SORU ÇÖZÜMÜ MANTIKLARI ---
-            else:
-                if secilen_ders == "Türkçe":
-                    if islem_modu == "Soru Çözümü":
-                         konu_icerigi = soru_cozumu_yap_tr(konu_adi_lower)
-                    else: 
-                        konu_icerigi = konuyu_bul_tr(konu_adi_lower)
-                
-                elif secilen_ders == "İngilizce":
-                    if islem_modu == "Soru Çözümü":
-                         konu_icerigi = soru_cozumu_yap_eng(konu_adi_lower)
-                    else: 
-                        konu_icerigi = konuyu_bul_eng(konu_adi_lower)
-                
-                elif secilen_ders == "Matematik":
-                    if islem_modu == "Soru Çözümü":
-                         konu_icerigi = soru_cozumu_yap_math(konu_adi_lower)
-                    else: 
-                        kon
+st
