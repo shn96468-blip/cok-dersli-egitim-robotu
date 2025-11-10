@@ -1,4 +1,115 @@
-# ... (Kodun Baş kısmı aynı kalıyor) ...
+import streamlit as st
+# Gerekli içerik dosyaları
+from turkish_content import konuyu_bul_tr, soru_cozumu_yap_tr
+from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
+from math_content import konuyu_bul_math, soru_cozumu_yap_math 
+
+# --- SAYFA VE SİMGE AYARLARI (EN ÜSTTE OLMALI) ---
+st.set_page_config(
+    page_title="Eğitim Robotu",
+    layout="wide",
+    page_icon="📚" 
+)
+
+# --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA (Hata Düzeltildi) ---
+ADMIN_PASSWORD = "123" 
+
+# Tüm session state değişkenlerini burada, kodun başında başlatıyoruz
+if 'admin_mode' not in st.session_state:
+    st.session_state['admin_mode'] = False
+if 'show_admin_login' not in st.session_state:
+    st.session_state['show_admin_login'] = False
+if 'app_color' not in st.session_state:
+    st.session_state['app_color'] = '#1E90FF' 
+    
+def attempt_admin_login(password):
+    if password == ADMIN_PASSWORD:
+        st.session_state['admin_mode'] = True
+        st.session_state['show_admin_login'] = False
+        st.experimental_rerun() # Sayfayı yenileme komutu
+    else:
+        st.error("Hatalı yönetici şifresi.")
+
+def toggle_admin_login_panel():
+    st.session_state['show_admin_login'] = not st.session_state['show_admin_login']
+    
+def admin_logout():
+    st.session_state['admin_mode'] = False
+    st.experimental_rerun() # Sayfayı yenileme komutu
+
+
+# Yönetici Modunda Tema Rengi Uygulama (Gerekli)
+if st.session_state['admin_mode']:
+    st.markdown(f'<style>body {{ color: {st.session_state["app_color"]}; }}</style>', unsafe_allow_html=True)
+
+
+# --- ANA ROBOT GÖVDESİ ---
+st.title("📚 Çok Dersli Eğitim Robotu")
+
+# Yönetici modu başlığı ve yeni özellikler
+if st.session_state['admin_mode']:
+    st.header(f"⚙️ YÖNETİCİ PANELİ (Aktif)")
+    
+    # 1. Site Görünümü Ayarları (YÖNETİCİ ÖZELLİĞİ)
+    st.subheader("🎨 Site Görünümü ve Temel Ayarlar")
+    
+    yeni_renk = st.color_picker('Uygulama Rengini Seçin', st.session_state['app_color'])
+    if yeni_renk != st.session_state['app_color']:
+        st.session_state['app_color'] = yeni_renk
+        st.experimental_rerun() 
+        
+    st.info(f"Uygulama Başlık Rengi: {st.session_state['app_color']}")
+    
+    st.markdown("---")
+    
+    # 2. İçerik Yönetimi Simülasyonu (YÖNETİCİ ÖZELLİĞİ)
+    st.subheader("✍️ İçerik Güncelleme (Simülasyon)")
+    st.caption("Bu özellik sadece görsel bir simülasyondur, konuları gerçekten dosyaya kaydetmez.")
+    
+    secilen_ders_admin = st.selectbox("İçerik Eklenecek Ders:", ("Türkçe", "İngilizce", "Matematik"), key="admin_select_ders")
+    konu_basligi = st.text_input("Yeni Konu Başlığı:", key="admin_input_baslik")
+    konu_detay = st.text_area("Konu Açıklaması (Detaylı):", key="admin_input_detay")
+    
+    if st.button("İçeriği Ekle", key="admin_button_ekle"):
+        if konu_basligi and konu_detay:
+            st.success(f"'{secilen_ders_admin}' dersine '{konu_basligi}' başlıklı **{len(konu_detay.split())} kelimelik** yeni içerik başarıyla EKLEME SİMÜLASYONU yapıldı!")
+        else:
+            st.warning("Lütfen başlık ve detay alanlarını doldurun.")
+
+else:
+    # Öğrenci Modu Karşılama
+    st.markdown("Merhaba! Lütfen önce dersinizi seçin.")
+
+
+# --- YÖNETİCİ/ÜYE GİRİŞİ (SIDEBAR) ---
+st.sidebar.title("Kullanıcı İşlemleri")
+
+# Yönetici Girişi Mantığı
+if st.session_state['admin_mode']:
+    st.sidebar.button("🔒 YÖNETİCİ ÇIKIŞI", on_click=admin_logout)
+else:
+    st.sidebar.button("🔒 Yönetici Girişi", on_click=toggle_admin_login_panel)
+    
+    if st.session_state['show_admin_login']:
+        admin_pass = st.sidebar.text_input("Yönetici Şifresi", type="password", key="admin_pass_input")
+        st.sidebar.button("Giriş Yap", on_click=attempt_admin_login, args=(admin_pass,))
+        st.sidebar.info(f"Şifrenizi mi unuttunuz? Şifre ipucu: İlk üç sayı. (Gerçek Şifre: {ADMIN_PASSWORD})")
+
+
+st.sidebar.button("👤 Üye Girişi (Pasif)", on_click=lambda: st.sidebar.warning("Üye Girişi özelliği geliştirme aşamasındadır."))
+st.sidebar.markdown("---") 
+
+# --- DERS LİSTESİ ---
+st.sidebar.title("Kullanılabilir Dersler")
+st.sidebar.markdown(
+    """
+    **🇹🇷 Türkçe (7. Sınıf)**
+    **🇬🇧 İngilizce**
+    **📐 Matematik**
+    """
+)
+st.sidebar.caption("Bu Uygulama Yusuf Efe Şahin Tarafından Geliştirilmiştir.")
+
 
 # SADECE ÖĞRENCİ MODUNDA İSE GÖSTER
 if not st.session_state['admin_mode']:
@@ -51,31 +162,4 @@ if not st.session_state['admin_mode']:
                     if islem_modu == "Soru Çözümü":
                          konu_icerigi = soru_cozumu_yap_math(konu_adi_lower)
                     else: 
-                        konu_icerigi = konuyu_bul_math(konu_adi_lower)
-
-            
-            # --- EVRENSEL BİLGİ YEDEĞİ (HER ŞEYİ CEVAPLAMA MANTIĞI) ---
-            if "Üzgünüm" in konu_icerigi or "bulamadım" in konu_icerigi:
-                 
-                 # Konu/Kelime bulunamazsa, hemen genel bilgi/arama yedeğine geçilir
-                 evrensel_cevap = f"🤖 **ROBOT CEVAP YEDEĞİ:** Aradığınız **'{konu_adi.upper()}'** konusu, tanımlı ders içeriklerimizde (sözlüklerimizde) bulunamamıştır. Ancak, robot olarak size genel bilgi verebilirim:\n\n"
-                 
-                 evrensel_cevap += "Dünyanın en derin okyanusu nedir? sorusunun cevabı Mariana Çukuru'nun bulunduğu Büyük Okyanus'tur."
-                 
-                 konu_icerigi = evrensel_cevap + "\n\n*Not: Bu yedek cevap, robotun her konuya cevap verme isteğiniz üzerine eklenmiştir ve tüm konulara aynı cevabı simüle edecektir. Farklı konular için daha fazla genel bilgi metni ekleyebilirsiniz.*"
-            
-            
-            # Sonucu Ekrana Yazdırma (HATA BURADAYDI, DÜZELTİLDİ)
-            if "desteklenmemektedir" not in konu_icerigi:
-                if islem_modu == "Kelime Bilgisi":
-                    # Düzeltme yapıldı: F-string doğru kapatıldı.
-                    st.success(f"İşte '{konu_adi.upper()}' için KELİME BİLGİSİ:")
-                else:
-                    # Düzeltme yapıldı: F-string doğru kapatıldı.
-                    st.success(f"İşte '{konu_adi.upper()}' için cevap/açıklama:")
-                st.markdown(konu_icerigi)
-            else:
-                st.warning(konu_icerigi)
-
-        else:
-            st.error("Lütfen bir konu adı veya kelime giriniz.")
+                        kon
