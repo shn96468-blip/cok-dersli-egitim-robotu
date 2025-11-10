@@ -4,6 +4,7 @@ import time
 # --- MODÜL VE KÜTÜPHANE İÇE AKTARMA ---
 # Hata olasılığına karşı, modül içe aktarmaları try-except bloğuna alınmıştır.
 try:
+    # Not: Bu dosyaların (turkish_content.py, english_content.py, math_content.py) app.py ile aynı dizinde olduğundan emin olun.
     from turkish_content import konuyu_bul_tr, soru_cozumu_yap_tr
     from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
     from math_content import konuyu_bul_math, soru_cozumu_yap_math 
@@ -13,9 +14,9 @@ except ImportError as e:
     def konuyu_bul_tr(konu): return f"İçerik modülü yüklenemediği için Türkçe '{konu}' konusu bulunamıyor."
     def soru_cozumu_yap_tr(soru): return f"İçerik modülü yüklenemediği için Türkçe '{soru}' sorusu çözülemiyor."
     def konuyu_bul_eng(konu): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_eng(soru): return f"İçerik modülü yüklenemediği için İngilizce '{soru}' sorusu çözülemiyor."
+    def soru_cozumu_yap_eng(soru): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' sorusu çözülemiyor."
     def konuyu_bul_math(konu): return f"İçerik modülü yüklenemediği için Matematik '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_math(soru): return f"İçerik modülü yüklenemediği için Matematik '{soru}' sorusu çözülemiyor."
+    def soru_cozumu_yap_math(soru): return f"İçerik modülü yüklenemediği için Matematik '{konu}' sorusu çözülemiyor."
 
 
 # --- SAYFA VE SİMGE AYARLARI ---
@@ -302,5 +303,57 @@ else:
     elif st.session_state['announcement_color'] == 'error':
         st.error(f"📣 DUYURU: {st.session_state['announcement']}")
 
-    # Renk ayarı admin modunda yapılmazsa buraya bir yedek ekleyelim
-    app_color_display = st.session
+    # Renk ayarı admin modunda yapılmazsa buraya bir yedek ekleyelim (386. satır düzeltmesi burada yapıldı)
+    app_color_display = st.session_state.get('app_color', '#1E90FF') 
+    st.markdown(f"✨ Merhaba! Ben sizin <span style='color:{app_color_display}'>kişisel eğitim robotunuz</span>.", unsafe_allow_html=True)
+    st.markdown("Aşağıdan dersinizi ve yapmak istediğiniz işlemi seçerek hemen bilgi almaya başlayın.")
+    st.markdown("---")
+
+
+# --- YÖNETİCİ/ÜYE GİRİŞİ (SIDEBAR) ---
+st.sidebar.title("Kullanıcı İşlemleri")
+
+# Yönetici Girişi
+if st.session_state['admin_mode']:
+    st.sidebar.button("🔒 YÖNETİCİ ÇIKIŞI", on_click=admin_logout)
+else:
+    st.sidebar.button("🔒 Yönetici Girişi", on_click=toggle_admin_login_panel)
+    
+    # YÖNETİCİ GİRİŞ FORMU
+    if st.session_state['show_admin_login']:
+        with st.sidebar.form("admin_login_form"):
+            admin_pass = st.text_input("Yönetici Şifresi", type="password", key="admin_pass_input")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.form_submit_button("Giriş Yap", on_click=attempt_admin_login, args=(admin_pass,))
+            with col2:
+                if st.form_submit_button("Şifremi Unuttum"):
+                    forgot_password_simulation("Yönetici Mail Adresi", is_admin=True)
+
+# Üye Girişi ve Kayıt Simülasyonu
+if st.session_state['user_logged_in']:
+    st.sidebar.success(f"Giriş Yapıldı: {st.session_state['current_user'].upper()}")
+    st.sidebar.button("🚪 Üye Çıkışı", on_click=user_logout) 
+else:
+    # ÜYE GİRİŞİ BUTONU VE FORMU
+    st.sidebar.button("👤 Üye Girişi", on_click=toggle_user_login_panel)
+    if st.session_state['show_user_login']:
+        with st.sidebar.form("user_login_form"):
+            user_name = st.text_input("Kullanıcı Adı")
+            user_pass = st.text_input("Şifre", type="password")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.form_submit_button("Giriş Yap", on_click=user_login, args=(user_name, user_pass))
+            with col2:
+                if st.form_submit_button("Şifremi Unuttum"):
+                     forgot_password_simulation(user_name or "Bilinmiyor", is_admin=False)
+        st.sidebar.caption("Demo Hesaplar: ali/a123, ayse/a456")
+
+    # ÜYE KAYIT BUTONU VE FORMU
+    if st.session_state['registration_allowed']:
+        st.sidebar.button("📝 Kaydol", on_click=toggle_user_register_panel)
+        if st.session_state['show_user_register']:
+            with st.sidebar.form("user_register_form"):
+                reg_user = st.text_input("Kullanıcı Adı (Kaydol)")
+                reg_email = st.text_input("E-posta Adresi")
+                reg_pass = st.text_input("Şifre Belirle
