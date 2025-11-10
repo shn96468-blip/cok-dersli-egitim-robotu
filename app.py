@@ -53,3 +53,4 @@ try:
 except ImportError as e:
     st.error(f"Eğitim İçerik Dosyası Hatası: Lütfen tüm içerik dosyalarının 'app.py' ile aynı dizinde olduğundan emin olun. Hata: {e}")
     # ... (Hata durumunda fonksiyonların boş tanımları buraya devam edecek - Yaklaşık 100. satır sonu)
+    
