@@ -12,7 +12,7 @@ except ImportError as e:
     st.error(f"Eğitim İçerik Dosyası Hatası: Lütfen 'turkish_content.py', 'english_content.py' ve 'math_content.py' dosyalarının 'app.py' ile aynı dizinde olduğundan emin olun. Hata: {e}")
     # Hata durumunda fonksiyonların boş tanımları
     def konuyu_bul_tr(konu): return f"İçerik modülü yüklenemediği için Türkçe '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_tr(soru): return f"İçerik modülü yüklenemediği için Türkçe '{soru}' sorusu çözülemiyor."
+    def soru_cozumu_yap_tr(soru): return f"İçerik modülü yüklenemediği için Türkçe '{konu}' sorusu çözülemiyor."
     def konuyu_bul_eng(konu): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' konusu bulunamıyor."
     def soru_cozumu_yap_eng(soru): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' sorusu çözülemiyor."
     def konuyu_bul_math(konu): return f"İçerik modülü yüklenemediği için Matematik '{konu}' konusu bulunamıyor."
@@ -147,4 +147,38 @@ def metin_oku(text):
     st.markdown(js_code, unsafe_allow_html=True)
 
 # --- SOHBET VE ÇEVİRİ MANTIKLARI ---
-def soh
+def sohbet_ve_cevir(kullanici_mesaji):
+    mesaj_lower = kullanici_mesaji.lower().strip()
+    
+    # 1. Hazır Cevaplar (Sohbet)
+    if "merhaba" in mesaj_lower or "selam" in mesaj_lower:
+        cevap = "Merhaba! Ben yapay zeka destekli eğitim robotuyum. Nasıl yardımcı olabilirim?"
+    elif "adın ne" in mesaj_lower or "kimsin" in mesaj_lower:
+        cevap = "Ben Yusuf Efe Şahin tarafından geliştirilen Çok Dersli Eğitim Robotuyum."
+    elif "teşekkür" in mesaj_lower or "sağol" in mesaj_lower:
+        cevap = "Rica ederim, her zaman buradayım!"
+        
+    # 2. Basit Çeviri Simülasyonu
+    elif "çevir" in mesaj_lower or "translate" in mesaj_lower:
+        # Basit bir anahtar kelime tabanlı çeviri simülasyonu
+        if "elma" in mesaj_lower:
+            cevap = "Kelime: Elma. İngilizce Çevirisi: Apple."
+        elif "apple" in mesaj_lower:
+            cevap = "Kelime: Apple. Türkçe Çevirisi: Elma."
+        elif "again" in mesaj_lower:
+            cevap = "Kelime: Again. Türkçe Çevirisi: Tekrar/Yine."
+        else:
+            cevap = f"'{kullanici_mesaji}' ifadesi için çeviri simülasyonu yapıldı. Gerçek bir dil modeli ile anlık çeviri yapabilirim."
+            
+    # 3. Genel Cevaplar (Eğitim)
+    else:
+        cevap = f"Anladım, '{kullanici_mesaji}' hakkında bilgi istiyorsunuz. Lütfen yukarıdaki menüden dersinizi ve işlem modunu seçerek detaylı bilgi almayı deneyin."
+        
+    st.session_state.chat_history.append({"user": kullanici_mesaji, "robot": cevap})
+    return cevap
+    
+    
+# Yönetici Modunda Tema Rengi Uygulama
+if st.session_state['admin_mode']:
+    st.markdown(f'<style>h1, h2, h3, h4, h5, h6 {{color: {st.session_state["app_color"]};}}</style>', unsafe_allow_html=True)
+else:
