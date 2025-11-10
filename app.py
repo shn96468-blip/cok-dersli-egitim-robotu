@@ -172,4 +172,160 @@ def general_chat_kanka(kullanici_mesaji):
         cevap = "Çok iyi çalışıyorum, teşekkür ederim! Peki sen nasılsın, dersler nasıl gidiyor?"
     elif "teşekkür" in mesaj_lower or "sağol" in mesaj_lower:
         cevap = "Rica ederim, ne zaman istersen buradayım!"
-    elif any(kelime in mesaj_lower for kelime in ["ders", "çalışmak", "ödev
+    elif any(kelime in mesaj_lower for kelime in ["ders", "çalışmak", "ödev"]):
+        cevap = "Harika! Hangi dersle ilgili bir sorunun var? Veya hangi konudan başlayayım?"
+    else:
+        cevap = f"Anladım, '{kullanici_mesaji}' ilginç bir konu! Ama biliyorsun, benim uzmanlık alanım eğitim. Ders kartlarından birini seçerek ilerleyelim mi?"
+
+    return cevap
+
+def instant_translate(kelime_veya_cumle):
+    mesaj_lower = kelime_veya_cumle.lower().strip()
+
+    if mesaj_lower in basit_sozluk: # Türkçe'den İngilizce'ye
+         return f"'{kelime_veya_cumle.title()}' kelimesinin İngilizce karşılığı: **{basit_sozluk[mesaj_lower]}**."
+    elif mesaj_lower in [v.lower() for v in basit_sozluk.values()]: # İngilizce'den Türkçe'ye
+        tr_karsilik = next(k for k, v in basit_sozluk.items() if v.lower() == mesaj_lower)
+        return f"'{kelime_veya_cumle.title()}' kelimesinin Türkçe karşılığı: **{tr_karsilik}**."
+    else:
+        # Google Translate Simülasyonu
+        return f"'{kelime_veya_cumle}' ifadesi için hazır çeviri bulamadım. Bu uzunluğu çevirmek için gerçek bir dil modeline ihtiyacım var. (Simülasyon)"
+
+# --- TEMA RENGİ VE MÜZİK KONTROLÜ ---
+if st.session_state['admin_mode']:
+    st.markdown(f'<style>h1, h2, h3, h4, h5, h6 {{color: {st.session_state["app_color"]};}}</style>', unsafe_allow_html=True)
+else:
+    app_color_display = st.session_state.get('app_color', '#1E90FF')
+    # Öğrenci modunda başlık rengini beyaz yapalım
+    st.markdown(f'<style>h1, h2, h3, h4, h5, h6 {{color: #FFFFFF;}}</style>', unsafe_allow_html=True)
+
+# --- MÜZİK ÇALMA MANTIĞI (Yönetici açarsa uygulama genelinde çalar) ---
+if st.session_state['music_enabled']:
+    st.markdown(f"""
+        <audio autoplay loop>
+          <source src="{st.session_state['music_url']}" type="audio/mp3">
+          Tarayıcınız ses çalmayı desteklemiyor.
+        </audio>
+        """,
+        unsafe_allow_html=True
+    )
+    # Öğrenci modunda çalma uyarısı
+    if not st.session_state['admin_mode']:
+        st.info("🎵 Sitemizin fon müziği çalıyor! (Sesi kısabilirsiniz)")
+# --------------------------------------------------
+
+# --- ANA ROBOT GÖVDESİ ---
+st.title("📚 Çok Dersli Eğitim Robotu")
+
+# SADECE ÖĞRENCİ MODUNDA İSE GÖSTER
+if not st.session_state['admin_mode']:
+
+    # 2. KARŞILAMA VE DUYURU
+    st.markdown("---")
+    if st.session_state['announcement_color'] == 'warning':
+        st.warning(f"📣 DUYURU: {st.session_state['announcement']}")
+    elif st.session_state['announcement_color'] == 'info':
+        st.info(f"📣 DUYURU: {st.session_state['announcement']}")
+    elif st.session_state['announcement_color'] == 'success':
+        st.success(f"📣 DUYURU: {st.session_state['announcement']}")
+    elif st.session_state['announcement_color'] == 'error':
+        st.error(f"📣 DUYURU: {st.session_state['announcement']}")
+
+    st.markdown(f"✨ Merhaba! Ben sizin <span style='color:{app_color_display}'>kişisel eğitim robotunuz</span>.", unsafe_allow_html=True)
+    st.markdown("Aşağıdan dersinizi ve yapmak istediğiniz işlemi seçerek hemen bilgi almaya başlayın.")
+    st.markdown("---")
+
+
+    # 3. DERS SEÇİMİ (KARTLAR ŞEKLİNDE)
+    st.header("📚 Ders Seçimi")
+
+    # DERSLERİN TANIMLARI (Tüm 6 ders + Çeviri)
+    # Kart görselindeki gibi 4'erli iki satır oluşturuyoruz.
+    col_din, col_fen, col_eng, col_mat = st.columns(4)
+    col_tarih, col_tr, col_cevir, col_bos = st.columns(4)
+
+    DERSLER = [
+        {"isim": "Din Kültürü", "simgesi": "🕌", "kolon": col_din},
+        {"isim": "Fen Bilimleri", "simgesi": "🔬", "kolon": col_fen},
+        {"isim": "İngilizce", "simgesi": "🇬🇧", "kolon": col_eng},
+        {"isim": "Matematik", "simgesi": "📐", "kolon": col_mat},
+        {"isim": "Tarih", "simgesi": "🏛️", "kolon": col_tarih},
+        {"isim": "Türkçe", "simgesi": "🇹🇷", "kolon": col_tr},
+        {"isim": "Anlık Çeviri", "simgesi": "🔄", "kolon": col_cevir},
+    ]
+
+    for ders in DERSLER:
+        with ders["kolon"]:
+            if st.button(f"{ders['simgesi']} {ders['isim']}", key=f"btn_{ders['isim']}", use_container_width=True):
+                st.session_state['secilen_ders'] = ders['isim']
+                st.rerun()
+
+    st.markdown("---")
+
+    secilen_ders = st.session_state['secilen_ders']
+
+    if secilen_ders:
+        st.subheader(f"✅ Seçili İşlem: {secilen_ders}")
+
+        # ANLIK ÇEVİRİ MODU (Yeni Arayüz)
+        if secilen_ders == "Anlık Çeviri":
+            st.header("🔄 Anlık Kelime ve Kısa Cümle Çevirisi")
+            st.info("Türkçe veya İngilizce bir kelime/kısa cümle girin, anında çevireyim.")
+
+            cevirilecek_metin = st.text_input("Çevirilecek Kelime/Cümle:")
+            if st.button("Çevir"):
+                if cevirilecek_metin:
+                    cevap = instant_translate(cevirilecek_metin)
+                    st.success(cevap)
+                else:
+                    st.error("Lütfen çevrilecek bir kelime veya cümle giriniz.")
+
+
+        # DERS İŞLEM MODU (Mevcut Yapı)
+        else:
+            islem_modu = st.radio(
+                "Şimdi yapmak istediğiniz işlemi seçin:",
+                ("Detaylı Konu Anlatımı", "Soru Çözümü", "Kelime Bilgisi"),
+                horizontal=True
+            )
+
+            konu_adi = st.text_input(f"Aradığınız Konu Adını veya Kelimeyi Giriniz:")
+
+            if st.button("Başlat"):
+                if konu_adi:
+
+                    konu_adi_lower = konu_adi.lower().strip()
+                    konu_icerigi = "Üzgünüm, aradığınız konuyu/kelimeyi bulamadım."
+
+                    # --- ANA MANTIK (YENİ DERSLER DAHİL) ---
+                    if islem_modu == "Kelime Bilgisi":
+                        if secilen_ders == "Türkçe":
+                            konu_icerigi = konuyu_bul_eng(konu_adi_lower)
+                        elif secilen_ders == "İngilizce":
+                            konu_icerigi = konuyu_bul_tr(konu_adi_lower)
+                        else:
+                            st.warning("Bu mod sadece Türkçe ve İngilizce derslerinde desteklenmektedir.")
+                            konu_icerigi = "Geçersiz Mod Seçimi."
+
+                    # --- KONU ANLATIMI VE SORU ÇÖZÜMÜ MANTIKLARI ---
+                    else:
+                        if secilen_ders == "Türkçe":
+                            if islem_modu == "Soru Çözümü":
+                                 konu_icerigi = soru_cozumu_yap_tr(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_tr(konu_adi_lower)
+
+                        elif secilen_ders == "İngilizce":
+                            if islem_modu == "Soru Çözümü":
+                                 konu_icerigi = soru_cozumu_yap_eng(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_eng(konu_adi_lower)
+
+                        elif secilen_ders == "Matematik":
+                            if islem_modu == "Soru Çözümü":
+                                 konu_icerigi = soru_cozumu_yap_math(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_math(konu_adi_lower)
+
+                        elif secilen_ders == "Tarih":
+                            if islem_modu == "Soru Çözümü":
