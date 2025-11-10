@@ -12,8 +12,7 @@ if 'admin_mode' not in st.session_state:
 if 'show_admin_login' not in st.session_state:
     st.session_state['show_admin_login'] = False
 if 'app_color' not in st.session_state:
-    st.session_state['app_color'] = '#1E90FF' # Varsayılan Mavi
-
+    st.session_state['app_color'] = '#1E90FF' 
     
 def attempt_admin_login(password):
     if password == ADMIN_PASSWORD:
@@ -41,25 +40,21 @@ st.set_page_config(
 # --- ANA ROBOT GÖVDESİ ---
 st.title("📚 Çok Dersli Eğitim Robotu")
 
-
 # Yönetici modu başlığı ve yeni özellikler
 if st.session_state['admin_mode']:
     st.header(f"⚙️ YÖNETİCİ PANELİ (Aktif)")
     
-    # 1. Site Görünümü Ayarları (Yeni Özellik)
     st.subheader("🎨 Site Görünümü ve Temel Ayarlar")
-    
     yeni_renk = st.color_picker('Uygulama Rengini Seçin', st.session_state['app_color'])
     if yeni_renk != st.session_state['app_color']:
         st.session_state['app_color'] = yeni_renk
-        st.rerun() # Renk değişimi için uygulamayı yenile
+        st.rerun() 
         
     st.markdown(f'<style>body {{ background-color: {st.session_state["app_color"]}; }}</style>', unsafe_allow_html=True)
     st.info(f"Uygulama Başlık Rengi: {st.session_state['app_color']}")
     
     st.markdown("---")
     
-    # 2. İçerik Yönetimi Simülasyonu (Yeni Özellik)
     st.subheader("✍️ İçerik Güncelleme (Simülasyon)")
     st.caption("Bu özellik sadece görsel bir simülasyondur, konuları gerçekten dosyaya kaydetmez.")
     
@@ -90,11 +85,9 @@ else:
         admin_pass = st.sidebar.text_input("Yönetici Şifresi", type="password", key="admin_pass_input")
         st.sidebar.button("Giriş Yap", on_click=attempt_admin_login, args=(admin_pass,))
         
-        # ŞİFREMİ UNUTTUM ÖZELLİĞİ
         st.sidebar.info(f"Şifrenizi mi unuttunuz? Şifre ipucu: İlk üç sayı. (Gerçek Şifre: {ADMIN_PASSWORD})")
 
 
-# Üye Girişi Mantığı (Pasif - Geliştirme Aşamasında)
 st.sidebar.button("👤 Üye Girişi (Pasif)", on_click=lambda: st.sidebar.warning("Üye Girişi özelliği geliştirme aşamasındadır."))
 st.sidebar.markdown("---") 
 
@@ -139,11 +132,13 @@ if not st.session_state['admin_mode']:
             # --- ANA MANTIK ---
             if islem_modu == "Kelime Çevirisi":
                 
-                # ÇEVİRİ İŞLEMİ İÇİN GOOGLE ARAMA KULLANILIR
+                # ÇEVİRİ İŞLEMİ İÇİN YENİ VE DÜZELTİLMİŞ GOOGLE ARAMA KULLANILIR
                 if secilen_ders == "Türkçe":
-                    query = f"İngilizce çeviri: {konu_adi_lower}"
+                    # Türkçe seçiliyse, Türkçe bir kelime yazılmış ve İngilizce çevirisi aranıyor demektir.
+                    query = f"'{konu_adi_lower}' kelimesinin İngilizce çevirisi"
                 elif secilen_ders == "İngilizce":
-                    query = f"Türkçe çeviri: {konu_adi_lower}"
+                    # İngilizce seçiliyse, İngilizce bir kelime yazılmış ve Türkçe çevirisi aranıyor demektir.
+                    query = f"'{konu_adi_lower}' kelimesinin Türkçe çevirisi"
                 else: 
                     konu_icerigi = "Matematik dersinde çeviri modu desteklenmemektedir."
                     query = None
@@ -155,6 +150,7 @@ if not st.session_state['admin_mode']:
                         result = google.search(queries=[query])
                         
                         if result and result[0].snippet:
+                            # İlk sonucu çeviri olarak göster
                             konu_icerigi = f"🌐 **Google Çeviri Sonucu:**\n\n> *{result[0].snippet}*"
                         else:
                             konu_icerigi = "Çeviri için Google'dan sonuç alınamadı."
@@ -172,4 +168,26 @@ if not st.session_state['admin_mode']:
                 
                 elif secilen_ders == "İngilizce":
                     if islem_modu == "Soru Çözümü":
-                         konu_icerigi = soru_cozumu_yap_eng(kon
+                         konu_icerigi = soru_cozumu_yap_eng(konu_adi_lower)
+                    else: 
+                        konu_icerigi = konuyu_bul_eng(konu_adi_lower)
+                
+                elif secilen_ders == "Matematik":
+                    if islem_modu == "Soru Çözümü":
+                         konu_icerigi = soru_cozumu_yap_math(konu_adi_lower)
+                    else: 
+                        konu_icerigi = konuyu_bul_math(konu_adi_lower)
+
+            
+            # Sonucu Ekrana Yazdırma
+            if "Üzgünüm" not in konu_icerigi and "desteklenmemektedir" not in konu_icerigi:
+                if islem_modu == "Kelime Çevirisi":
+                    st.success(f"İşte '{konu_adi.upper()}' için ÇEVİRİ:")
+                else:
+                    st.success(f"İşte '{konu_adi.upper()}' için cevap/açıklama:")
+                st.markdown(konu_icerigi)
+            else:
+                st.warning(konu_icerigi)
+
+        else:
+            st.error("Lütfen bir konu adı, kelime veya çevrilecek metin giriniz.")
