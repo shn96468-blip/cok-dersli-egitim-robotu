@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st 
 import time
 
 # --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA ---
@@ -150,4 +150,5 @@ def metin_oku(text):
     </script>
     """
     st.markdown(js_code, unsafe_allow_html=True)
+
 
