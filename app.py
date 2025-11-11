@@ -1,4 +1,4 @@
-import streamlit as st 
+import streamlit as st
 import time
 
 # --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA ---
@@ -104,51 +104,3 @@ def user_logout():
     st.rerun()
 
 def toggle_admin_login_panel():
-    st.session_state['show_admin_login'] = not st.session_state['show_admin_login']
-    st.session_state['show_user_login'] = False
-    st.session_state['show_user_register'] = False
-
-def toggle_user_login_panel():
-    if st.session_state['user_login_allowed']:
-        st.session_state['show_user_login'] = not st.session_state['show_user_login']
-        st.session_state['show_admin_login'] = False
-        st.session_state['show_user_register'] = False
-    else:
-        st.sidebar.error("Üye girişi şu anda bakımdadır.")
-
-def toggle_user_register_panel():
-    if st.session_state['registration_allowed']:
-        st.session_state['show_user_register'] = not st.session_state['show_user_register']
-        st.session_state['show_admin_login'] = False
-        st.session_state['show_user_login'] = False
-    else:
-        st.sidebar.error("Yeni kayıtlar şu anda kapalıdır.")
-
-def forgot_password_simulation(email_or_username, is_admin=False):
-    st.sidebar.warning("Sistemimiz simülasyon modunda olduğundan, şifre sıfırlama linki kayıtlı e-posta adresinize gönderilmiştir.")
-    time.sleep(1)
-    if is_admin:
-        st.sidebar.success(f" Yönetici Şifresi sıfırlama maili 'admin@robot.com' adresine gönderildi.")
-    else:
-        user_email = "kayıtlı_eposta_adresi"
-        for user in MOCK_USERS:
-            if user["username"] == email_or_username:
-                user_email = user["email"]
-                break
-
-        st.sidebar.success(f" Kullanıcı şifresi sıfırlama linki '{user_email}' adresine gönderildi.")
-
-
-# --- METİN OKUMA FONKSİYONU ---
- 
-def metin_oku(text):
-    clean_text = text.replace('"', '').replace('\n', ' ')
-    js_code = f"""
-    <script>
-        var utterance = new SpeechSynthesisUtterance("{clean_text}");
-        window.speechSynthesis.speak(utterance);
-    </script>
-    """
-    st.markdown(js_code, unsafe_allow_html=True)
-
-
