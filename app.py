@@ -95,4 +95,18 @@ st.set_page_config(
 )
 
 # --- GİRİŞ/ÇIKIŞ FONKSİYONLARI ---
-def attempt_admin_login(password
+def attempt_admin_login(password): # Hata düzeltildi: 98. satır
+    if password == ADMIN_PASSWORD:
+        st.session_state['admin_mode'] = True
+        st.session_state['show_admin_login'] = False
+        st.rerun()
+    else:
+        st.error("Hatalı yönetici şifresi.")
+
+def admin_logout():
+    st.session_state['admin_mode'] = False
+    st.rerun()
+
+def user_login(username, password):
+    if not st.session_state['user_login_allowed']:
+        st.error("Üye giri
