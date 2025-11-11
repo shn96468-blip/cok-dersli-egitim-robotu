@@ -1,12 +1,3 @@
-import streamlit as st
-import time
-
-# --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA ---
-ADMIN_PASSWORD = "123"
-MOCK_USERS = [
-    {"username": "ali", "email": "ali@okul.com", "password_hash": "a123"},
-    {"username": "ayse", "email": "ayse@okul.com", "password_hash": "a456"},
-]
-
-# OTURUM DURUMU BAŞLANGIÇ DEĞERLERİ
-# ... geri kalan kod devam ediyor
+# Din Kültürü İçerik Modülü (Boş bırakıldı)
+def konuyu_bul_religion(konu): return f"Din Kültürü dersi için '{konu}' konusu bulunamadı. İçerik dosyası eklenecektir."
+def soru_cozumu_yap_religion(soru): return f"Din Kültürü dersi için '{soru}' sorusu çözülemedi."
