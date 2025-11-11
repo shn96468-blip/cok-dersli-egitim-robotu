@@ -42,27 +42,53 @@ if 'music_enabled' not in st.session_state:
 if 'music_url' not in st.session_state:
     st.session_state['music_url'] = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
 
-# --- MODÜL VE KÜTÜPHANE İÇE AKTARMA ---
+
+# --- MODÜL VE KÜTÜPHANE İÇE AKTARMA (Hata Kontrollü) ---
+# Eksik dosyalar sorunu (history_content ve religion_content) devam ediyor.
+# Bu blok, dosya eksik olsa bile uygulamanın açılmasını sağlayacak bir yedekleme içerir.
+
+# Varsayılan (Yedek) Fonksiyonlar Tanımlanır
+def yedek_konu(ders, konu): return f"İçerik modülü yüklenemediği için {ders} dersi '{konu}' konusu bulunamıyor."
+def yedek_soru(ders, soru): return f"İçerik modülü yüklenemediği için {ders} dersi '{soru}' sorusu çözülemiyor."
+
+# Fonksiyon Atamaları (Varsayılan olarak yedek fonksiyonlar atanır)
+konuyu_bul_tr = lambda konu: yedek_konu("Türkçe", konu)
+soru_cozumu_yap_tr = lambda soru: yedek_soru("Türkçe", soru)
+konuyu_bul_eng = lambda konu: yedek_konu("İngilizce", konu)
+soru_cozumu_yap_eng = lambda soru: yedek_soru("İngilizce", soru)
+konuyu_bul_math = lambda konu: yedek_konu("Matematik", konu)
+soru_cozumu_yap_math = lambda soru: yedek_soru("Matematik", soru)
+konuyu_bul_history = lambda konu: yedek_konu("Tarih", konu)
+soru_cozumu_yap_history = lambda soru: yedek_soru("Tarih", soru)
+konuyu_bul_religion = lambda konu: yedek_konu("Din K.", konu)
+soru_cozumu_yap_religion = lambda soru: yedek_soru("Din K.", soru)
+
+
+# Başarılı İçe Aktarma Denemesi (Sadece varsa yükler)
 try:
     from turkish_content import konuyu_bul_tr, soru_cozumu_yap_tr
-    from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
-    from math_content import konuyu_bul_math, soru_cozumu_yap_math
-    from history_content import konuyu_bul_history, soru_cozumu_yap_history
-    from religion_content import konuyu_bul_religion, soru_cozumu_yap_religion
-except ImportError as e:
-    st.error(f"Eğitim İçerik Dosyası Hatası: Lütfen tüm içerik dosyalarının 'app.py' ile aynı dizinde olduğundan emin olun. Hata: {e}")
-    # Hata durumunda fonksiyonların boş tanımları
-    def konuyu_bul_tr(konu): return f"İçerik modülü yüklenemediği için Türkçe '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_tr(soru): return f"İçerik modülü yüklenemediği için Türkçe '{konu}' sorusu çözülemiyor."
-    def konuyu_bul_eng(konu): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_eng(soru): return f"İçerik modülü yüklenemediği için İngilizce '{konu}' sorusu çözülemiyor."
-    def konuyu_bul_math(konu): return f"İçerik modülü yüklenemediği için Matematik '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_math(soru): return f"İçerik modülü yüklenemediği için Matematik '{konu}' sorusu çözülemiyor."
-    def konuyu_bul_history(konu): return f"İçerik modülü yüklenemediği için Tarih '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_history(soru): return f"İçerik modülü yüklenemediği için Tarih '{soru}' sorusu çözülemiyor."
-    def konuyu_bul_religion(konu): return f"İçerik modülü yüklenemediği için Din K. '{konu}' konusu bulunamıyor."
-    def soru_cozumu_yap_religion(soru): return f"İçerik modülü yüklenemediği için Din K. '{soru}' sorusu çözülemiyor."
+except ImportError:
+    st.info("🇹🇷 Türkçe İçerik Dosyası Bulunamadı. Simülasyon Devam Ediyor.")
 
+try:
+    from english_content import konuyu_bul_eng, soru_cozumu_yap_eng
+except ImportError:
+    st.info("🇬🇧 İngilizce İçerik Dosyası Bulunamadı. Simülasyon Devam Ediyor.")
+    
+try:
+    from math_content import konuyu_bul_math, soru_cozumu_yap_math
+except ImportError:
+    st.info("📐 Matematik İçerik Dosyası Bulunamadı. Simülasyon Devam Ediyor.")
+    
+try:
+    from history_content import konuyu_bul_history, soru_cozumu_yap_history
+except ImportError:
+    st.info("🏛️ Tarih İçerik Dosyası Bulunamadı. Simülasyon Devam Ediyor.")
+    
+try:
+    from religion_content import konuyu_bul_religion, soru_cozumu_yap_religion
+except ImportError:
+    st.info("🕌 Din Kültürü İçerik Dosyası Bulunamadı. Simülasyon Devam Ediyor.")
 
 # --- SAYFA VE SİMGE AYARLARI ---
 st.set_page_config(
@@ -297,4 +323,87 @@ if not st.session_state['admin_mode']:
                     konu_adi_lower = konu_adi.lower().strip()
                     konu_icerigi = "Üzgünüm, aradığınız konuyu/kelimeyi bulamadım."
 
-                    #
+                    # --- ANA MANTIK (YENİ DERSLER DAHİL) ---
+                    if islem_modu == "Kelime Bilgisi":
+                        if secilen_ders == "Türkçe":
+                            konu_icerigi = konuyu_bul_eng(konu_adi_lower)
+                        elif secilen_ders == "İngilizce":
+                            konu_icerigi = konuyu_bul_tr(konu_adi_lower)
+                        else:
+                            st.warning("Bu mod sadece Türkçe ve İngilizce derslerinde desteklenmektedir.")
+                            konu_icerigi = "Geçersiz Mod Seçimi."
+
+                    # --- KONU ANLATIMI VE SORU ÇÖZÜMÜ MANTIKLARI ---
+                    else:
+                        if secilen_ders == "Türkçe":
+                            if islem_modu == "Soru Çözümü":
+                                konu_icerigi = soru_cozumu_yap_tr(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_tr(konu_adi_lower)
+
+                        elif secilen_ders == "İngilizce":
+                            if islem_modu == "Soru Çözümü":
+                                konu_icerigi = soru_cozumu_yap_eng(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_eng(konu_adi_lower)
+
+                        elif secilen_ders == "Matematik":
+                            if islem_modu == "Soru Çözümü":
+                                konu_icerigi = soru_cozumu_yap_math(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_math(konu_adi_lower)
+
+                        elif secilen_ders == "Tarih":
+                            if islem_modu == "Soru Çözümü":
+                                konu_icerigi = soru_cozumu_yap_history(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_history(konu_adi_lower)
+
+                        elif secilen_ders == "Din Kültürü":
+                            if islem_modu == "Soru Çözümü":
+                                konu_icerigi = soru_cozumu_yap_religion(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_religion(konu_adi_lower)
+
+                        elif secilen_ders == "Fen Bilimleri":
+                            # Fen Bilimleri içeriğini Türkçe modül ile simüle edelim
+                            st.warning("Fen Bilimleri içeriği Türkçe modülü ile simüle edilmiştir.")
+                            if islem_modu == "Soru Çözümü":
+                                konu_icerigi = soru_cozumu_yap_tr(konu_adi_lower)
+                            else:
+                                konu_icerigi = konuyu_bul_tr(konu_adi_lower)
+
+                    # --- EVRENSEL BİLGİ YEDEĞİ ve SONUÇ YAZDIRMA ---
+                    if "Üzgünüm" in konu_icerigi or "bulamadım" in konu_icerigi or "İçerik modülü yüklenemediği" in konu_icerigi:
+
+                         evrensel_cevap = f"🤖 **ROBOT CEVAP YEDEĞİ:** Aradığınız **'{konu_adi.upper()}'** konusu, tanımlı ders içeriklerimizde bulunamamıştır. Robot, yapay zeka desteğiyle bu konuda genel bilgi verme simülasyonu yapabilir:\n\n"
+                         st.info("🤖 Robot Diyor ki: Bu bir simülasyon cevabıdır.")
+                         evrensel_cevap += "Örneğin, 'Dünyanın en derin okyanusu nedir?' diye sorsaydınız, cevabım 'Büyük Okyanus' olurdu. (Genel Bilgi Yedeği)"
+                         konu_icerigi = evrensel_cevap + "\n\n*Not: Robotun bilgi havuzunu genişletmek için yönetici panelinden yeni içerik eklenmeli veya içerik dosyaları doğru yerleştirilmelidir.*"
+
+
+                    # Sonucu Ekrana Yazdırma
+                    if "Geçersiz Mod Seçimi" not in konu_icerigi:
+                        if islem_modu == "Kelime Bilgisi":
+                            st.success(f"İşte '{konu_adi.upper()}' için KELİME BİLGİSİ:")
+                        else:
+                            st.success(f"İşte '{konu_adi.upper()}' için cevap/açıklama:")
+
+                        # Konuşma Özelliği (Metin Okuma)
+                        col_yazi, col_ses = st.columns([4, 1])
+                        with col_yazi:
+                            st.markdown(konu_icerigi)
+                        with col_ses:
+                            if st.button("🎤 Seslendir", key="seslendir_konu_anlatimi"):
+                                metin_oku(konu_icerigi)
+
+                    else:
+                        st.warning(konu_icerigi)
+
+                else:
+                    st.error("Lütfen bir konu adı veya kelime giriniz.")
+
+    # 4. KANKA CHATBOTU (Simülasyon - Floating Chat)
+    kanka_toggle_js = f"""
+    <div style='position: fixed; right: 20px; bottom: 20px; z-index: 9999;'>
+        <button onclick
