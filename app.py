@@ -1,4 +1,3 @@
-import streamlit as st
-import time
+,import streamlit as st
 
-# --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA ---
+st.title("Uygulama Çalışıyor Testi!")
