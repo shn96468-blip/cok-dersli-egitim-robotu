@@ -1,17 +1,8 @@
- # ... (Üstteki kodlar)
-if not st.session_state['admin_mode']: # <-- Bu satır sola yaslı olmalı
-
-    # 2. KARŞILAMA VE DUYURU
-    st.markdown("---")
-    # ... (Diğer kodlar)
-
-    # 3. DERS SEÇİMİ
-    st.header("📚 Ders Seçimi")
-
-    # DERSLERİN TANIMLARI
-    col_din, col_fen, col_eng, col_mat = st.columns(4)
-    # ...
-    
-    for ders in DERSLER: # <-- Bu satır da doğru girintide olmalı
-        with ders["kolon"]:
-# ...
+ for ders in DERSLER:
+        # 4 boşluk girinti
+        with ders["kolon"]: 
+            # 8 boşluk girinti
+            if st.button(f"{ders['simgesi']} {ders['isim']}", key=f"btn_{ders['isim']}", use_container_width=True):
+                # 12 boşluk girinti
+                st.session_state['secilen_ders'] = ders['isim']
+                st.rerun()
