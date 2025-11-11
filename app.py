@@ -1,4 +1,4 @@
-import streamlit as st
+ import streamlit as st
 import time
 
 # --- YÖNETİCİ GİRİŞİ AYARLARI VE OTURUM BAŞLATMA ---
@@ -128,7 +128,7 @@ def forgot_password_simulation(email_or_username, is_admin=False):
     st.sidebar.warning("Sistemimiz simülasyon modunda olduğundan, şifre sıfırlama linki kayıtlı e-posta adresinize gönderilmiştir.")
     time.sleep(1)
     if is_admin:
-        st.sidebar.success(f" Yöneticist.sidebar.success(f" KullanıcI 'SHN96468@GMAİL.com' adresine gönderildi.")
+        st.sidebar.success(f" Yönetici Şifresi sıfırlama maili 'admin@robot.com' adresine gönderildi.")
     else:
         user_email = "kayıtlı_eposta_adresi"
         for user in MOCK_USERS:
@@ -136,8 +136,13 @@ def forgot_password_simulation(email_or_username, is_admin=False):
                 user_email = user["email"]
                 break
 
-        st.sidebar.success(f" Kullan
+        st.sidebar.success(f" Kullanıcı şifresi sıfırlama linki '{user_email}' adresine gönderildi.")
 
 
-
-
+# --- METİN OKUMA FONKSİYONU ---
+def metin_oku(text):
+    clean_text = text.replace('"', '').replace('\n', ' ')
+    js_code = f"""
+    <script>
+        var utterance = new SpeechSynthesisUtterance("{clean_text}");
+        window.speechSynthesis.speak
