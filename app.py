@@ -140,10 +140,14 @@ def forgot_password_simulation(email_or_username, is_admin=False):
 
 
 # --- METİN OKUMA FONKSİYONU ---
+ 
 def metin_oku(text):
     clean_text = text.replace('"', '').replace('\n', ' ')
     js_code = f"""
     <script>
         var utterance = new SpeechSynthesisUtterance("{clean_text}");
-        window.speechSynthesis.speak
+        window.speechSynthesis.speak(utterance);
+    </script>
+    """
+    st.markdown(js_code, unsafe_allow_html=True)
 
