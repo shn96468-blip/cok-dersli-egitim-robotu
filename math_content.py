@@ -1,21 +1,17 @@
-# math_content.py
-# 12. Sınıfa Kadar Kapsam Genişletildi
+# Matematik İçerik Modülü
 
-KONULAR_MATH = {
-    "denklemler": "Denklemler, iki matematiksel ifadenin eşitliğini gösteren ifadelerdir. Bilinmeyeni (x) bulmak için kullanılır. (Örnek: 2x + 3 = 7).",
-    "üslü sayılar": "Bir sayının kendisiyle kaç kez çarpılacağını gösteren sayılardır. (Örnek: 2³ = 8).",
-    "türev": "Türev, bir fonksiyonun anlık değişim hızını bulmaya yarar. Maksimum ve minimum değerleri bulmak için kullanılır. (Lise 12. Sınıf Konusu).",
-    "integral": "İntegral, bir eğrinin altında kalan alanı hesaplamaya yarar. Türevin tersi olarak da bilinir. (Lise 12. Sınıf Konusu).",
-    "logaritma": "Logaritma, üslü ifadenin ters işlemidir. Büyük sayıları daha küçük sayılarla temsil etmekte kullanılır. (Örnek: log₂(8) = 3).",
-}
-
-def konuyu_bul_math(arama_terimi):
-    arama_terimi = arama_terimi.lower().strip()
-    if arama_terimi in KONULAR_MATH:
-        return f"📐 MATEMATİK KONU ANLATIMI:\n\n{KONULAR_MATH[arama_terimi]}"
+def konuyu_bul_math(konu):
+    konu_lower = konu.lower()
+    if "üslü" in konu_lower or "sayı" in konu_lower:
+        return "Üslü Sayılar: Bir sayının kendisiyle kaç kez çarpıldığını gösteren ifadedir. Örnek: 2 üzeri 3 (2³) = 2 * 2 * 2 = 8'dir."
+    elif "dört işlem" in konu_lower or "toplama" in konu_lower:
+        return "Temel Dört İşlem: Matematikte toplama (+), çıkarma (-), çarpma (x) ve bölme (÷) işlemleridir. Her birinin matematiksel işlem önceliği kuralları vardır."
     else:
-        return "Üzgünüm, aradığınız matematik konusunu bulamadım."
+        return f"Matematik dersi için '{konu.upper()}' konusuyla ilgili detaylı içerik bulunamamıştır."
 
-def soru_cozumu_yap_math(arama_termi):
-    arama_termi = arama_termi.lower().strip()
-    return "❓ Örnek Soru Çözümü (Matematik): Çözüm, cebirsel işlemler, formüller ve ispatlar kullanılarak yapılır."
+def soru_cozumu_yap_math(soru):
+    soru_lower = soru.lower()
+    if "denklem" in soru_lower or "bilinmeyen" in soru_lower:
+        return "Çözüm: Bu bir denklem problemidir. Bilinmeyeni (genellikle x) yalnız bırakarak veya her iki tarafa aynı işlemi uygulayarak çözüme ulaşabilirsiniz."
+    else:
+        return f"Matematik dersi için '{soru.upper()}' sorusuna özgü bir çözüm yolu bulamadım."
